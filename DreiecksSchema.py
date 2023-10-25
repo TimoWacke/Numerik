@@ -47,7 +47,7 @@ class DreiecksSchema:
         return f'D_{k}_{j}'
 
     def n_out_of_bounds(self, n):
-        return "n muss zwischen 1 und der Anzahl der Stützstellen - 1 liegen!"
+        return "n muss zwischen 0 und der Anzahl der Stützstellen - 1 liegen!"
 
     def calc_kj(self, k, j, x=None):
         if j == 0:
@@ -63,20 +63,20 @@ class DreiecksSchema:
 
 
     def visualize(self):
-        n = len(self.szs.liste)
+        n = len(self.szs.liste) - 1
         # print table
         print('k\\j', end='\t\t')
-        for j in range(n):
+        for j in range(n+1):
             # print header with j's , no line break
-            print(f'j={j}', end='\t\t')
+            print(f'j={j}', end='\t\t') # 0, 1, ..., n
         print('\n')
-        for k in range(n):
+        for k in range(n+1): # 0, 1, ..., n
             # print k's	
             print(f'k={k}, {self.szs.text(k)}', end='\t')
-            for j in range(k+1):
+            for j in range(k+1): # 0, 1, ..., k
                 print(f'{self.notation(k, j)}={self._k_js[k][j]}', end='\t')
             print('')
-        print(f'\n{self.notation(n-1, n-1)} = {self._k_js[n-1][n-1]}\n')
+        print(f'\n{self.notation(n, n)} = {self._k_js[n][n]}\n')
         print('----------------------------------------\n\n')
 
 class NevilleAitken(DreiecksSchema):
@@ -93,10 +93,10 @@ class NevilleAitken(DreiecksSchema):
     def interpolate(self, x, n=False, visualize=False):
         if not n:
             n = len(self.szs.liste) - 1
-        assert n < len(self.szs.liste) and n > 0, self.n_out_of_bounds(n)
+        assert n < len(self.szs.liste) and n >= 0, self.n_out_of_bounds(n)
         p_k_j = self.calc_kj(n, n, x)
         if visualize:
-            print(f'Using Neville-Aitken to calculate p_{n-1}({x})')
+            print(f'Using Neville-Aitken to calculate p_{n}({x})')
             self.visualize()
         return p_k_j
 
@@ -119,7 +119,7 @@ class DividierteDifferezen(DreiecksSchema):
         assert n < len(self.szs.liste) and n >= 0, self.n_out_of_bounds(n)
         dd_k_j = self.calc_kj(n, n)
         if visualize:
-            print(f'Calculating Dividierte Differenzen: {self.notation(n-1, n-1)}')
+            print(f'Calculating Dividierte Differenzen: {self.notation(n, n)}')
             self.visualize()
         return dd_k_j
 
@@ -129,28 +129,33 @@ class Newton:
         self.dd_calc = DividierteDifferezen(szs)
         self.dds = []
 
-    def basisPolynom(self, i, x):
+    def basisPolynom(self, n, x, visualize=False):
         product = 1
-        for j in range(i):
-            product *= (x - self.szs.get(j).x)
+        if (visualize):
+            print(f'Basis polynom w_{0}({x}): {product}')            
+        yield product
+        product_str = ''
+        for i in range(1, n+1): # 1, 2, ..., n
+            product *= (x - self.szs.get(i-1).x)
+            if (visualize):
+                print(f'Basis polynom w_{i}({x}): {product_str} = {product}')            
             yield product
 
     def interpolate(self, x, n=False, visualize=False):
         if not n:
-            n = len(self.szs.liste)
-        assert n <= len(self.szs.liste) and n > 0, self.n_out_of_bounds(n)
-        n = len(self.dd_calc.szs.liste)
-        local_dds = []
-        for i in range(n-1):
+            n = len(self.szs.liste) - 1
+        assert n < len(self.szs.liste) and n >= 0, self.n_out_of_bounds(n)
+        local_dds = [] # first grade
+        for i in range(0, n):  # 0, 1, ..., n-1, next line n-th grade
             local_dds.append(self.dd_calc.dds_nth_grade(i))  # "caches" the dds       
-        local_dds.append(self.dd_calc.dds_nth_grade(n-1, visualize=visualize))
+        local_dds.append(self.dd_calc.dds_nth_grade(n, visualize=visualize))
         self.dds = local_dds
         # using generator function for the basis polynom
         # and using saved list of dds
 
         # list comprehension
         p_x = sum([dd * product for dd, product in zip(self.dds, self.basisPolynom(n, x))])
-        print (f'Newton Darstellung p_{n-1}({x}) = {p_x}\n')
+        print (f'Newton Darstellung p_{n}({x}) = {p_x}\n')
 
 
 if __name__ == '__main__':

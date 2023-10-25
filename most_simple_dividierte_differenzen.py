@@ -13,8 +13,8 @@ def dividierte_differenzen(xs, fs, k, j):
     if j == 0:
         dd_k_j = fs[k]
     else:
-        dd_k_j_minus_1 = dividierte_differenzen(xs, fs, k, j-1)
-        dd_k_minus_1_j_minus_1 = dividierte_differenzen(xs, fs, k-1, j-1)
+        dd_k_j_minus_1 = dividierte_differenzen(xs, fs, k, j-1) # rekursiver Aufruf von sich selbst
+        dd_k_minus_1_j_minus_1 = dividierte_differenzen(xs, fs, k-1, j-1) # rekursiver Aufruf von sich selbst
         x_k = xs[k]
         x_k_minus_j = xs[k-j]
         dd_k_j = (dd_k_j_minus_1 - dd_k_minus_1_j_minus_1) / (x_k - x_k_minus_j)

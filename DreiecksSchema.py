@@ -1,4 +1,4 @@
-
+import matplotlib.pyplot as plt #install with "pip install matplotlib"
 
 class Stuetzstelle:
     def __init__(self, x, f):
@@ -156,6 +156,18 @@ class Newton:
         # list comprehension
         p_x = sum([dd * product for dd, product in zip(self.dds, self.basisPolynom(n, x))])
         print (f'Newton Darstellung p_{n}({x}) = {p_x}\n')
+
+
+    def calculate_P_over_interval(self, xstart, xend, step_size):
+        x_values = [x for x in range(xstart, xend, step_size)]
+        y_values = []
+        for x in x_values:
+            y_values.append(sum([dd * product for dd, product in zip(self.dds, self.basisPolynom(n, x))]))
+       
+        # plot
+        plt.plot(x_values, y_values)
+       
+
 
 
 if __name__ == '__main__':

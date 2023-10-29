@@ -26,4 +26,4 @@ def dividierte_differenzen(xs, fs, k, j):
 stuetzstellen_x = [0, 1, 3, 4]
 stuetzstellen_f = [2, 1, 2, 4]
 print("Dividierte Differenz f[x_0, ..., x_3] für die Stützstellen aus Aufgabe 2:")
-print(dividierte_differenzen(stuetzstellen_x, stuetzstellen_f, 3, 3),)
+print(dividierte_differenzen(stuetzstellen_x, stuetzstellen_f, 3, 3))

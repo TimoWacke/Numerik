@@ -1,5 +1,5 @@
 '''
-    Stuetzstelle Class, StuetzstellenListe Class and TriangularRecursive
+    Stuetzstelle Class, Stuetzstellenlist Class and TriangularRecursive
 Schema Class are useful for
     the recursive scheme...
 
@@ -37,13 +37,19 @@ class SupportPointList:
             return None
         else:
             return self.list[k-j]
+        
+    def get_xlist(self):
+        return [sp.x for sp in self.list]
+    
+    def get_ylist(self):
+        return [sp.f for sp in self.list]
 
 class TriangularRecursiveSchema:
     def __init__(self, spl: SupportPointList):
         self.spl = spl
-        if len(self.spl.liste) > 0:
+        if len(self.spl.list) > 0:
             # init 2d array
-            self._k_js = [[None for i in range(j+1)] for j in range(len(spl.liste))]
+            self._k_js = [[None for i in range(j+1)] for j in range(len(spl.list))]
         else:
             self._k_js = []
         
@@ -70,7 +76,7 @@ class TriangularRecursiveSchema:
 
 
     def visualize(self):
-        n = len(self.spl.liste) - 1
+        n = len(self.spl.list) - 1
         # print table
         print('k\\j', end='\t\t')
         for j in range(n+1):
@@ -103,7 +109,7 @@ class DividedDifferences(TriangularRecursiveSchema):
         return dd_k_j
 
     def dds_nth_grade(self, n, visualize=False):
-        assert n < len(self.spl.liste) and n >= 0, self.n_out_of_bounds(n)
+        assert n < len(self.spl.list) and n >= 0, self.n_out_of_bounds(n)
         dd_k_j = self.calc_kj(n, n)
         if visualize:
             print(f'Calculating divided difference: {self.notation(n, n)}')

@@ -105,14 +105,15 @@ class MathExpression:
     
     def __repr__(self):
         if self.operator == 'const':
-            return f'Math({self.value})'
+            return f'{self.value}'
         elif self.operator.startswith('var='):
             return f'Math({self.operator.split("=")[1]})={self.value}'
         elif len(self.children) == 1:
             return f'Math({self.operator}{self.children[0]})={self.value}'
-        else:
+        elif len(self.children) == 2:
             return f'Math({self.children[0]} {self.operator} {self.children[1]})={self.value}'
-    
+        else:
+            return f'Math({self.value})'
 
 '''
     class that enables derivation of a Functional at a given point
@@ -129,7 +130,7 @@ class FunctionOverX:
     '''
         calulates (d/dx)^n at self.f(x), arguments: x, n:int 
     '''
-    def n_th_derivative_at(self, x, n=1):
+    def first_n_th_derivative_at(self, x, n=1):
         x = MathExpression(x, (), 'var=x')
         y = self.function(x)
         i_th_derivative = y
@@ -141,8 +142,7 @@ class FunctionOverX:
             yield i_th_derivative.value
     
     def n_th_derivative(self, n=1):
-        return lambda x: self.n_th_dertivative_at(x, n)
-
+        return lambda x: list(self.first_n_th_derivative_at(x, n))[-1]
 
 '''
     Class that makes it easy to plot multiple callables
@@ -180,6 +180,7 @@ class PlotFunctions:
             # generate y values
             ys = []
             for x in xs:
+                y = function(x)
                 ys.append(function(x))
             plt.plot(xs, ys, label=label)
             if xp is not None and yp is not None:

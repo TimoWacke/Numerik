@@ -14,7 +14,7 @@ import numpy as np
 from divided_differences import DividedDifferences
 from divided_differences import SupportingPoint
 from divided_differences import SupportPointList
-
+from functions import FunctionOverX, PlotFunctions
 
 class Newton:
     def __init__(self, spl: SupportPointList):
@@ -64,7 +64,7 @@ class Hermite(Newton):
 
     def addDataPoints(self, x, m=1): # use the first m-1 derivatives as data point, m=1 means using just f
         f_at_x = self.f(x)
-        derivative_suports = list(FunctionOverX(f).n_th_derivative_at(x, m))
+        derivative_suports = list(FunctionOverX(self.f).first_n_th_derivative_at(x, m))
         k_base = len(self.spl.list)
         self.dd_calc.expand_size_to(k_base + m)
         for j in range(m):
@@ -95,7 +95,6 @@ class Tschebyscheff(Newton):
             self.spl.add(SupportingPoint(x_i, self.f(x_i)))
             self.dd_calc.expand_size_to(i+1)
         
-        
 
 
 '''
@@ -124,3 +123,14 @@ class Spline:
     
         self.spline = CubicSpline(self.x_list, self.y_list, bc_type='natural')
 
+
+if __name__ == '__main__':
+
+    # using hermite
+
+    f = FunctionOverX(lambda x: (-x**2).exp())
+    hermite = Hermite(f)
+    hermite.generateDataPoints(5, 3, -5, 5)
+    p = hermite.interpolate(visualize=True)
+
+    PlotFunctions([('f', f), ('hermite', p)]).plot()

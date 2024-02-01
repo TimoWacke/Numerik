@@ -57,6 +57,22 @@ class MathExpression:
         out._backward = backward
         return out
     
+    def sin(self):
+        out = MathExpression(np.sin(self.value), (self,), 'sin')
+
+        def backward():
+            self.grad += out.grad * self.cos()
+        out._backward = backward
+        return out
+    
+    def cos(self):
+        out = MathExpression(np.cos(self.value), (self,), 'cos')
+
+        def backward():
+            self.grad += out.grad * -self.sin()
+        out._backward = backward
+        return out
+    
     def __neg__(self):
         return self * -1
     
@@ -71,7 +87,7 @@ class MathExpression:
     
     def __rmul__(self, other):
         return self * other
-    
+
     def exp(self):
         out = MathExpression(np.exp(self.value), (self,), 'exp')
 
@@ -169,19 +185,18 @@ class PlotFunctions:
 
 
     
-    def plot(self, a=-5, b=5, resolution=10):
+    def plot(self, a=-1, b=1, resolution=10):
         # resolution: drawn points per unit
         # xs length
         n = int(b - a) * resolution
         xs = np.linspace(a, b, n)
-
         # plot the function
         for label, function, xp, yp in self.labled_functions:
             # generate y values
             ys = []
             for x in xs:
                 y = function(x)
-                ys.append(function(x))
+                ys.append(y)
             plt.plot(xs, ys, label=label)
             if xp is not None and yp is not None:
                 plt.plot(xp, yp, 'o', label='data points for ' + label)

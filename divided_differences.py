@@ -115,3 +115,4 @@ class DividedDifferences(TriangularRecursiveSchema):
             print(f'Calculating divided difference: {self.notation(n, n)}')
             self.visualize()
         return dd_k_j
+   

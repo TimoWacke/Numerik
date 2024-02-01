@@ -15,6 +15,7 @@ from divided_differences import DividedDifferences
 from divided_differences import SupportingPoint
 from divided_differences import SupportPointList
 from functions import FunctionOverX, PlotFunctions
+from functions import MathExpression
 
 class Newton:
     def __init__(self, spl: SupportPointList):
@@ -114,9 +115,9 @@ class Spline:
         # i = 0, ..., n
         self.x_list = np.linspace(a, b, n)
         self.y_list = self.f(self.x_list) # runs over all x_i and calculates f(x_i)
-        
+        self.h = (b-a) / (n-1)
 
-    def interPolateWithCubicSpline(self):
+    def interpolateWithCubicSpline(self):
         # natural cubic spline:
         # -> meaning
         # f''(x_0) = 0 and f''(x_n) = 0 
@@ -124,13 +125,36 @@ class Spline:
         self.spline = CubicSpline(self.x_list, self.y_list, bc_type='natural')
 
 
+    def interpolateWithQuadSplineUsingMoments(self):
+        moments_list = []
+        moments_list.append(self.f.n_th_derivative(1)(self.x_list[0]))
+        spline_list = []
+
+        for j in range(1, len(self.x_list)):
+            m_j_1 = moments_list[-1]
+            m_j = 2/self.h * (self.f(self.x_list[j]) - self.f(self.x_list[j-1])) - m_j_1
+            moments_list.append(m_j)
+            x_j_1 = self.x_list[j-1]
+            
+            s_j = lambda x, m_j_1=m_j_1, x_j_1=x_j_1, m_j=m_j: (m_j_1 * (x - x_j_1)) + (((m_j - m_j_1) / (2 * self.h)) * (x - x_j_1)**2) + self.f(x_j_1)
+
+            spline_list.append(('s_' + str(j-1), s_j))
+        
+        return spline_list
+
+        
+        
+
+        
+
 if __name__ == '__main__':
 
     # using hermite
 
-    f = FunctionOverX(lambda x: (-x**2).exp())
-    hermite = Hermite(f)
-    hermite.generateDataPoints(5, 3, -5, 5)
-    p = hermite.interpolate(visualize=True)
-
-    PlotFunctions([('f', f), ('hermite', p)]).plot()
+    f = FunctionOverX(lambda x: (x * np.pi * 0.5).sin() + (x * np.pi * 0.5).cos())
+    quadSpline = Spline(f)
+    quadSpline.generateDataPoints(4)
+    splines = quadSpline.interpolateWithQuadSplineUsingMoments()
+    splines.append(('f', f, quadSpline.x_list, quadSpline.y_list))
+    plotter = PlotFunctions(splines)
+    plotter.plot(a=-1, b=1, resolution=100)
